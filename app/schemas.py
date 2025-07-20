@@ -2,17 +2,27 @@ from pydantic import BaseModel, EmailStr
 
 
 class User(BaseModel):
-    email : EmailStr
+    email : str
     password : str 
-    fullname : str 
+    full_name : str 
+    is_active : bool
 
 class UserOut(BaseModel):
     id : int 
-    email : EmailStr
+    email : str
     fullname: str 
 
     class Config: 
         orm_mode = True
-        
+    
+
+class Admin(BaseModel):
+    id: int
+    email: str 
+    fullname: str
+
+    class Config:
+        orm_mode = True
+
 
     
