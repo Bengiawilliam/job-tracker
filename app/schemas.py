@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-
+from typing import Optional
 
 class User(BaseModel):
     email : str
@@ -24,5 +24,7 @@ class Admin(BaseModel):
     class Config:
         orm_mode = True
 
-
+class UserUpdate(BaseModel):
+    fullname : Optional[str] = None
+    email : Optional[str] = None
     
