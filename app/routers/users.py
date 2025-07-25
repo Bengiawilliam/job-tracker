@@ -3,15 +3,15 @@ from .. import schemas, database, models
 from sqlalchemy.orm import Session
 
 
-router = APIRouter()
+router = APIRouter(prefix="/users")
 
-@router.get("/users")
-def All(db: Session = Depends(database.get_db)):
+@router.get("/",response_model = list[schemas.UserOut])
+def get_all_users(db: Session = Depends(database.get_db)):
     users = db.query(models.User).all()
     return users
 
 
-@router.post("/users")
+@router.post("/")
 def CreateUser(request : schemas.User, db: Session = Depends(database.get_db)):
     new_user = models.User(email = request.email, password = request.password, full_name = request.full_name, is_active = request.is_active)
     db.add(new_user)
