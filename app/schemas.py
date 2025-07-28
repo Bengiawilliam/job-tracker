@@ -5,8 +5,8 @@ class User(BaseModel):
     email : str
     password : str 
     full_name : str 
-    is_active : bool
-    
+    is_admin : bool
+
 class Blog(BaseModel):
     title : str 
     body : str
@@ -63,8 +63,19 @@ class Token(BaseModel):
     token_type: str
 
 
+
+
 class TokenData(BaseModel):
-    username: str | None = None
+    email: Optional[str] = None
+    role: str
+
+class createAdmin(BaseModel):
+    username : str 
+    email : str 
+    password : str 
+    company : str 
+    is_admin : bool 
+
 
 
 

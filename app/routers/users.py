@@ -8,8 +8,18 @@ router = APIRouter(
     prefix="/users",
     tags= ["Users"])
 
+@router.get("/user/profile")
+def get_user_profile(
+    db: Session = Depends(database.get_db),
+    current_user: schemas.TokenData = Depends(OAuth2.get_current_user)
+):
+    if current_user.role != "user":
+        raise HTTPException(status_code=403, detail="Only users can access this route")
+    return {"message": f"Welcome User {current_user.email}"}
+
+
 @router.get("/",response_model = list[schemas.UserOut])
-def get_all_users(db: Session = Depends(database.get_db), get_current_user: schemas.User = Depends(OAuth2.get_current_user)):
+def get_all_users(db: Session = Depends(database.get_db)):
     users = db.query(models.User).all()
     return users
 
@@ -17,7 +27,7 @@ def get_all_users(db: Session = Depends(database.get_db), get_current_user: sche
 @router.post("/")
 def CreateUser(request : schemas.User, db: Session = Depends(database.get_db)):
     hashed_password = hashing.pwd_cxt.hash(request.password)
-    new_user = models.User(email = request.email, password = hashed_password, full_name = request.full_name, is_active = request.is_active)
+    new_user = models.User( email = request.email, password = hashed_password, full_name = request.full_name, is_admin = request.is_admin)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
