@@ -22,7 +22,7 @@ def verify_token(token : str, credentials_exception):
         email = payload.get("sub")
         role = payload.get("role")
         id = payload.get("id")
-        if email is None or not role:
+        if email is None or not role or id is None:
             raise credentials_exception
         return schemas.TokenData(email=email, role=role, id = id)
     except JWTError:

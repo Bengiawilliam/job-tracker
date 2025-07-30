@@ -11,29 +11,31 @@ router = APIRouter(
 )
 
 @router.post('/')
-def login_dashboard(request : OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
+def login_dashboard(
+    request: OAuth2PasswordRequestForm = Depends(), 
+    db: Session = Depends(database.get_db)
+):
+    user = db.query(models.User).filter(models.User.email == request.username).first()
+    
+    if user:
+        if not hashing.pwd_cxt.verify(request.password, user.password):
+            raise HTTPException(status_code=401, detail="Incorrect password")
+        
+        role = "admin" if user.is_admin else "user"
 
-    user = db.query(models.User).filter(models.User.email == request.username).first() 
+    else:
+        user = db.query(models.Admin).filter(models.Admin.email == request.username).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        if not hashing.pwd_cxt.verify(request.password, user.password):
+            raise HTTPException(status_code=401, detail="Incorrect password")
 
-    if not user:
-        return HTTPException(status_code=404 , detail= "data not found")
-
-    if not hashing.pwd_cxt.verify(request.password, user.password):
-        raise HTTPException(status_code=401, detail="Incorrect password")
-
-    role = "admin" if user.is_admin else "user"
+        role = "admin"
 
     access_token = create_access_token(
-        data={"sub": user.email, "role": role, "id" : user.id}
+        data={"sub": user.email, "role": role, "id": user.id}
     )
-    return {"access_token": access_token, "token_type": "bearer"}
 
-@router.post("/create_account")
-def Create_Account(request : schemas.User, db: Session = Depends(database.get_db)):
-    hashed_password = hashing.pwd_cxt.hash(request.password)
-    new_user = models.User( email = request.email, password = hashed_password, full_name = request.full_name, is_admin = request.is_admin)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+    return {"access_token": access_token, "token_type": "bearer"}
 
