@@ -68,6 +68,7 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     email: Optional[str] = None
     role: str
+    id : int
 
 class createAdmin(BaseModel):
     username : str 
@@ -76,6 +77,21 @@ class createAdmin(BaseModel):
     company : str 
     is_admin : bool 
 
+
+
+class Company(BaseModel):
+    name: Optional[str] = "Monaco Tracks.co"
+    motto: Optional[str] = "Innovation in you!!"
+    position: Optional[str] = "Recruiter"
+
+class AdminOut(BaseModel):
+    name : str 
+    email : str
+    company : str 
+    position : str 
+
+    class Config:
+        orm_mode = True
 
 
 

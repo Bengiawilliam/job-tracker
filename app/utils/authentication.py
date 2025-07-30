@@ -24,6 +24,16 @@ def login_dashboard(request : OAuth2PasswordRequestForm = Depends(), db: Session
     role = "admin" if user.is_admin else "user"
 
     access_token = create_access_token(
-        data={"sub": user.email, "role": role}
+        data={"sub": user.email, "role": role, "id" : user.id}
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/create_account")
+def Create_Account(request : schemas.User, db: Session = Depends(database.get_db)):
+    hashed_password = hashing.pwd_cxt.hash(request.password)
+    new_user = models.User( email = request.email, password = hashed_password, full_name = request.full_name, is_admin = request.is_admin)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
+

@@ -8,7 +8,8 @@ router = APIRouter(
     prefix="/users",
     tags= ["Users"])
 
-@router.get("/user/profile")
+
+@router.get("/profile")
 def get_user_profile(
     db: Session = Depends(database.get_db),
     current_user: schemas.TokenData = Depends(OAuth2.get_current_user)
@@ -23,19 +24,17 @@ def get_all_users(db: Session = Depends(database.get_db)):
     users = db.query(models.User).all()
     return users
 
-
-@router.post("/")
-def CreateUser(request : schemas.User, db: Session = Depends(database.get_db)):
-    hashed_password = hashing.pwd_cxt.hash(request.password)
-    new_user = models.User( email = request.email, password = hashed_password, full_name = request.full_name, is_admin = request.is_admin)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
-
 @router.get("/{id}", response_model = schemas.ShowUser)
-def showUser(id : int,db: Session = Depends(database.get_db)):
+def search_user(id : int,db: Session = Depends(database.get_db)):
     user = db.query(models.User).filter(models.User.id == id).first()
     if not user: 
         raise HTTPException(status_code=404, detail="not found")
     return user
+
+@router.post("/job")
+def apply_job():
+    pass
+
+@router.get("/job/review_status")
+def fetch_status():
+    pass
